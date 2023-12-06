@@ -16,22 +16,15 @@ class RNN(nn.Module):
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
         self.output_size = output_size
-        self.l1 = nn.Linear(self.embedding_size + self.hidden_size, self.hidden_size)
-        self.l2 = nn.Linear(self.hidden_size, self.output_size)
+        self.embedding = nn.Embedding(MAX_VOCAB_SIZE, self.embedding_size)
+        self.rnn = nn.GRU(self.embedding_size, self.hidden_size)
+        self.fc = nn.Linear(self.hidden_size, self.output_size)
 
     def forward(self, document: Sequence[torch.Tensor]) -> torch.Tensor:
-        hidden = torch.zeros((1, 1, self.hidden_size), requires_grad=True)
-        for token_embedding in document:
-            hidden = self.forward_cell(token_embedding, hidden)
-        output = self.l2(hidden.squeeze(1))
+        embedded = self.embedding(document)
+        output, _ = self.rnn(embedded)
+        output = self.fc(output[-1, :, :])
         return output
-
-    def forward_cell(
-        self, token_embedding: torch.Tensor, previous_hidden: torch.Tensor
-    ) -> torch.Tensor:
-        concatenated = torch.cat((token_embedding, previous_hidden), dim=2)
-        hidden = self.l1(concatenated)
-        return hidden
 
 
 def onehot(
@@ -48,32 +41,14 @@ def onehot(
 
 def prepare_data(
     documents: List[List[str]], vocabulary_map: Mapping[str, int]
-) -> Sequence[Sequence[torch.Tensor]]:
-    if len(vocabulary_map) < 2:
-        raise ValueError("Vocabulary size must be at least 2 for one-hot encoding.")
-
-    flattened_tokens = [token for sentence in documents for token in sentence]
-    reduced_vocab = sorted(
-        set(flattened_tokens), key=lambda x: vocabulary_map.get(x, float("inf"))
-    )
-
-    if len(reduced_vocab) < 2:
-        raise ValueError(
-            "Reduced vocabulary size must be at least 2 for one-hot encoding."
-        )
-
-    vocabulary_map = {token: idx for idx, token in enumerate(reduced_vocab)}
-
+) -> Sequence[torch.Tensor]:
     data = []
     for sentence_list in documents:
         sentence_data = []
         for token in sentence_list:
             if token in vocabulary_map:
-                token_tensor = torch.tensor(
-                    onehot(vocabulary_map, token).astype("float32")
-                )
-                sentence_data.append(token_tensor)
-        data.append(sentence_data)
+                sentence_data.append(vocabulary_map[token])
+        data.append(torch.tensor(sentence_data, dtype=torch.long))
     return data
 
 
@@ -103,14 +78,23 @@ y_true = [torch.tensor([0]) for _ in music_data] + [
 # Combine datasets
 X = music_data + sports_data
 
-
 # Define RNN model
+embedding_size = len(vocabulary_map)
+hidden_size = 128
+output_size = 2
+
+model = RNN(embedding_size, hidden_size, output_size)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+loss_fn = torch.nn.CrossEntropyLoss()
+
+
+# Usage
 def train_rnn_model(model, X, y_true, optimizer, loss_fn, num_epochs=100):
     total_loss = 0
     for epoch in range(num_epochs):
         for x_i, y_i in zip(X, y_true):
             optimizer.zero_grad()
-            y_pred = model(x_i)
+            y_pred = model(x_i.unsqueeze(0))  # Adjust the input format
             loss = loss_fn(y_pred, y_i.squeeze())
             loss.backward()
             optimizer.step()
@@ -121,14 +105,5 @@ def train_rnn_model(model, X, y_true, optimizer, loss_fn, num_epochs=100):
 
     print("Final total loss:", total_loss)
 
-
-# Usage
-embedding_size = len(vocabulary_map)
-hidden_size = 128
-output_size = 2
-
-model = RNN(embedding_size, hidden_size, output_size)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-loss_fn = torch.nn.CrossEntropyLoss()
 
 train_rnn_model(model, X, y_true, optimizer, loss_fn, num_epochs=100)
