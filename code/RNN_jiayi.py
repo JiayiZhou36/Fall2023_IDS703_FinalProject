@@ -7,7 +7,6 @@ from torch import nn
 
 # define type
 FloatArray = NDArray[np.float64]
-MAX_VOCAB_SIZE = 5000  # Define your desired maximum vocabulary size
 
 
 class RNN(nn.Module):
@@ -16,6 +15,7 @@ class RNN(nn.Module):
         self.embedding_size = embedding_size
         self.hidden_size = hidden_size
         self.output_size = output_size
+        MAX_VOCAB_SIZE = len(vocabulary_map)  # Update this line
         self.embedding = nn.Embedding(MAX_VOCAB_SIZE, self.embedding_size)
         self.rnn = nn.GRU(self.embedding_size, self.hidden_size)
         self.fc = nn.Linear(self.hidden_size, self.output_size)
@@ -66,6 +66,7 @@ vocabulary = sorted(set(token for sentence in music + sports for token in senten
 ]
 vocabulary_map = {token: idx for idx, token in enumerate(vocabulary)}
 print("Vocabulary done")
+MAX_VOCAB_SIZE = len(vocabulary_map)  # Define your desired maximum vocabulary size
 music_data = prepare_data(music, vocabulary_map)
 sports_data = prepare_data(sports, vocabulary_map)
 print("Prepared data done")
