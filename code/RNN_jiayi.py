@@ -51,10 +51,10 @@ def prepare_data(
     if len(vocabulary_map) < 2:
         raise ValueError("Vocabulary size must be at least 2 for one-hot encoding.")
 
+    flattened_tokens = [token for sentence in documents for token in sentence]
     reduced_vocab = sorted(
-        (token for sentence in documents for token in sentence),
-        key=lambda x: vocabulary_map.get(x, float("inf")),
-    )[: min(MAX_VOCAB_SIZE, len(vocabulary_map))]
+        set(flattened_tokens), key=lambda x: vocabulary_map.get(x, float("inf"))
+    )
 
     if len(reduced_vocab) < 2:
         raise ValueError(
