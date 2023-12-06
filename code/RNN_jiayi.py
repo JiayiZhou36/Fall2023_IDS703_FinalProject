@@ -5,6 +5,7 @@ from numpy.typing import NDArray
 import torch
 from torch import nn
 
+# define type
 FloatArray = NDArray[np.float64]
 MAX_VOCAB_SIZE = 5000  # Define your desired maximum vocabulary size
 
