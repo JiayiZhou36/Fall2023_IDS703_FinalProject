@@ -26,7 +26,7 @@ def read_and_process_file(file_path, n):
 
 
 # Test the function
-print(read_and_process_file("category10.txt", 1))
+print(read_and_process_file("../data/category10.txt", 1))
 
 
 def generate_synthetic_data(n_grams, sentence_lengths, n):
@@ -72,8 +72,8 @@ n = 1  # Unigram
 
 # Process files and generate synthetic data
 for category, output_file in [
-    ("category10.txt", "synthetic_music.txt"),
-    ("category17.txt", "synthetic_sports.txt"),
+    ("../data/category10.txt", "synthetic_music.txt"),
+    ("../data/category17.txt", "synthetic_sports.txt"),
 ]:
     n_grams, sentence_lengths = read_and_process_file(category, n)
     synthetic_data = generate_synthetic_data(n_grams, sentence_lengths, n)
