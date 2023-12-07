@@ -2,7 +2,6 @@ import random
 from collections import Counter
 import nltk
 from nltk.util import ngrams
-import numpy as np
 
 # Ensure the necessary NLTK data is downloaded
 nltk.download("punkt")
@@ -25,13 +24,10 @@ def read_and_process_file(file_path, n):
         return n_grams, sentence_lengths
 
 
-# Test the function
-print(read_and_process_file("../data/category10.txt", 1))
-
-
-def generate_synthetic_data(n_grams, sentence_lengths, n):
+def generate_synthetic_data(n_grams, sentence_lengths, n, max_rows=None):
     synthetic_data = []
     n_gram_counts = Counter(n_grams)
+    total_rows = 0
 
     for length in sentence_lengths:
         sentence = []
@@ -55,6 +51,10 @@ def generate_synthetic_data(n_grams, sentence_lengths, n):
         synthetic_data.append(sentence[:length])  # Ensure correct sentence length
         print("Generated sentence:", ",".join(sentence))
 
+        total_rows += 1
+        if max_rows is not None and total_rows >= max_rows:
+            break
+
     return synthetic_data
 
 
@@ -69,6 +69,7 @@ def write_synthetic_data(synthetic_data, output_file):
 
 # Parameters
 n = 1  # Unigram
+max_rows = 10000  # Maximum number of rows
 
 # Process files and generate synthetic data
 for category, output_file in [
@@ -76,8 +77,6 @@ for category, output_file in [
     ("../data/category17.txt", "synthetic_sports.txt"),
 ]:
     n_grams, sentence_lengths = read_and_process_file(category, n)
-    synthetic_data = generate_synthetic_data(n_grams, sentence_lengths, n)
+    synthetic_data = generate_synthetic_data(n_grams, sentence_lengths, n, max_rows)
     print(synthetic_data)
     write_synthetic_data(synthetic_data, output_file)
-
-# The synthetic data is now saved in 'synthetic_music.txt' and 'synthetic_sports.txt'
