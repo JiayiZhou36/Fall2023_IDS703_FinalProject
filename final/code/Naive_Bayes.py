@@ -75,10 +75,10 @@ def generate_data_tfidf(
     return tfidf.transform(X_train), tfidf.transform(X_test)
 
 
-def run_experiment() -> None:
+def run_experiment(file_path_1, file_path_2) -> None:
     random.seed(31)
-    music = read_file_to_sentences("category10.txt")
-    sports = read_file_to_sentences("category17.txt")
+    music = read_file_to_sentences(file_path_1)
+    sports = read_file_to_sentences(file_path_2)
     vocabulary, vocabulary_map = create_vocabulary_and_mapping(music, sports)
 
     start_time = time.time()
@@ -101,4 +101,5 @@ def run_experiment() -> None:
 
 
 if __name__ == "__main__":
-    run_experiment()
+    run_experiment("../data/category10.txt", "../data/category17.txt")
+    run_experiment("../data/synthetic_music.txt", "../data/synthetic_sports.txt")
