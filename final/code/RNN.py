@@ -131,4 +131,4 @@ def train_rnn_model(file_path_1, file_path_2):
 if __name__ == "__main__":
     # Calling function
     train_rnn_model("../data/category10.txt", "../data/category17.txt")
-    train_rnn_model("synthetic_music.txt", "synthetic_sports.txt")
+    train_rnn_model("../data/synthetic_music.txt", "../data/synthetic_sports.txt")
