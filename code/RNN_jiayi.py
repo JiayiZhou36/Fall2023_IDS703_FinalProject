@@ -1,11 +1,11 @@
 import random
 from typing import List, Mapping, Optional, Sequence
 import numpy as np
-from numpy.typing import NDArray
 import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
+import time
 
 
 def read_file_to_sentences(file_path):
@@ -60,6 +60,7 @@ def pad_sequences(batch):
     return padded_sequences, labels
 
 
+# Read data and create vocabulary
 music_data = read_file_to_sentences("../data/category10.txt")
 sports_data = read_file_to_sentences("../data/category17.txt")
 print("Read files done")
@@ -88,8 +89,14 @@ dataset = CustomDataset(all_data, labels, vocab)
 dataloader = DataLoader(dataset, batch_size=32, shuffle=True, collate_fn=pad_sequences)
 
 # Training loop
-num_epochs = 10
+num_epochs = 20
+start_time = time.time()  # Record the start time for training
 for epoch in range(num_epochs):
+    epoch_start_time = time.time()  # Record the start time for the epoch
+    total_loss = 0.0
+    correct_predictions = 0
+    total_samples = 0
+
     for inputs, labels in dataloader:
         optimizer.zero_grad()
         outputs = model(inputs)
@@ -97,4 +104,24 @@ for epoch in range(num_epochs):
         loss.backward()
         optimizer.step()
 
-    print(f"Epoch {epoch+1}/{num_epochs}, Loss: {loss.item()}")
+        # Update metrics
+        total_loss += loss.item()
+        _, predicted = torch.max(outputs, 1)
+        correct_predictions += (predicted == labels.squeeze()).sum().item()
+        total_samples += labels.size(0)
+
+    epoch_end_time = time.time()  # Record the end time for the epoch
+    epoch_time = (
+        epoch_end_time - epoch_start_time
+    )  # Calculate the time taken for the epoch
+
+    # Calculate accuracy and average loss for the epoch
+    accuracy = correct_predictions / total_samples
+    average_loss = total_loss / len(dataloader)
+
+    print(
+        f"Epoch {epoch+1}/{num_epochs}, Loss: {average_loss:.4f}, Accuracy: {accuracy:.4f}, Time: {epoch_time:.2f} seconds"
+    )
+
+total_training_time = time.time() - start_time  # Calculate the total training time
+print(f"Total training time: {total_training_time:.2f} seconds")
