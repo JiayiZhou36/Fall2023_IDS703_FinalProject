@@ -61,8 +61,8 @@ def pad_sequences(batch):
 
 
 # Read data and create vocabulary
-music_data = read_file_to_sentences("../data/category10.txt")
-sports_data = read_file_to_sentences("../data/category17.txt")
+music_data = read_file_to_sentences("synthetic_music.txt")
+sports_data = read_file_to_sentences("synthetic_sports.txt")
 print("Read files done")
 
 all_data = music_data + sports_data
