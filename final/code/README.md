@@ -3,3 +3,8 @@ The original dataset we are using is from Kaggle (https://www.kaggle.com/dataset
 
 ### Libraries
 Make sure to install the packages below:
+`random`
+`gensim`
+`sklearn`
+`time`
+`torch`
