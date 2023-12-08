@@ -1,9 +1,7 @@
 import random
 from typing import List, Mapping, Optional, Sequence, Tuple, Dict
-import gensim.downloader as api
 import numpy as np
 from numpy.typing import NDArray
-from sklearn.decomposition import TruncatedSVD
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 import time
